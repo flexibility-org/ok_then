@@ -4,7 +4,7 @@
 
 [![Hex pm](https://img.shields.io/hexpm/v/ok_then)](https://hex.pm/packages/ok_then)
 [![Documentation](https://img.shields.io/badge/docs-hexdocs-blue)](https://hexdocs.pm/ok_then)
-![Checks Status](https://img.shields.io/github/checks-status/flexibility-org/ok_then/main)
+[![Checks Status](https://img.shields.io/github/checks-status/flexibility-org/ok_then/main)](https://github.com/flexibility-org/ok_then/actions)
 
 ## Installation
 
