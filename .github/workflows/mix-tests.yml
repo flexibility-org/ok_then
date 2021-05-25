@@ -30,6 +30,7 @@ jobs:
           otp: 23.x
         - elixir: 1.12.x
           otp: 24.x
+          check-formatting: true
 
     runs-on: ubuntu-20.04
 
@@ -66,6 +67,7 @@ jobs:
         mix deps.get
 
     - name: Check Formatting
+      if: matrix.check_formatting == 'true'
       run: mix format --check-formatted
 
     - name: Check compile warnings
