@@ -1,6 +1,6 @@
 defmodule OkThen.Result.Enum do
   @moduledoc """
-  Functions for handling tagged tuples inside Enums.
+  Functions for processing tagged tuples inside Enums.
   """
 
   alias OkThen.Result

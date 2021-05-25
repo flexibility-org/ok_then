@@ -1,6 +1,6 @@
 defmodule OkThen.Result do
   @moduledoc """
-  For processing of tagged tuples, e.g. `{:ok, "hello"}` or `{:error, :not_found}`.
+  Functions to aid processing of tagged tuples in pipelines.
 
   ## Examples
 
