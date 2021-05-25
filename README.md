@@ -1,6 +1,9 @@
 # OkThen
 
-**TODO: Add description**
+**The Swiss Army Knife for tagged tuple pipelines**
+
+[![Hex pm](https://img.shields.io/hexpm/v/ok_then)](https://hex.pm/packages/ok_then)
+[![Documentation](https://img.shields.io/badge/docs-hexdocs-blue)](https://hexdocs.pm/ok_then)
 
 ## Installation
 
@@ -14,8 +17,3 @@ def deps do
   ]
 end
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/ok_then](https://hexdocs.pm/ok_then).
-
