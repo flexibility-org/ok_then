@@ -9,11 +9,7 @@ defmodule OkThen.MixProject do
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      docs: [
-        groups_for_functions: [
-          Guards: &(&1[:section] == :guards)
-        ]
-      ],
+      docs: docs(),
       package: package()
     ]
   end
@@ -30,10 +26,22 @@ defmodule OkThen.MixProject do
   end
 
   # Run "mix help deps" to learn about dependencies.
-  defp deps do
+  defp deps() do
     [
       {:ex_doc, "~> 0.24", only: :dev, runtime: false},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false}
+    ]
+  end
+
+  defp docs() do
+    [
+      groups_for_functions: [
+        Guards: &(&1[:section] == :guards)
+      ],
+      extras: [
+        "README.md"
+      ],
+      main: "readme"
     ]
   end
 

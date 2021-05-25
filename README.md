@@ -6,6 +6,9 @@
 [![Documentation](https://img.shields.io/badge/docs-hexdocs-blue)](https://hexdocs.pm/ok_then)
 [![Test Status](https://img.shields.io/github/workflow/status/flexibility-org/ok_then/Mix%20Tests)](https://github.com/flexibility-org/ok_then/actions)
 
+* [How to install](#installation)
+* [Why does this exist?](#why)
+
 ## At a glance
 
 **Wrap values:**
@@ -138,6 +141,8 @@ To mitigate this issue, the approach taken by this package is to **combine** the
   convenient.
 * Functions that _create_ or _map_ tagged tuples will catch `nil` values and
   transform the returned result into `:none`.
+
+Take a look at [some examples](#at-a-glance).
 
 ## Installation
 
