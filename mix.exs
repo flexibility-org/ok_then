@@ -5,6 +5,7 @@ defmodule OkThen.MixProject do
     [
       app: :ok_then,
       version: "0.1.0",
+      description: description(),
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -12,7 +13,8 @@ defmodule OkThen.MixProject do
         groups_for_functions: [
           Guards: &(&1[:section] == :guards)
         ]
-      ]
+      ],
+      package: package()
     ]
   end
 
@@ -23,10 +25,21 @@ defmodule OkThen.MixProject do
     ]
   end
 
+  defp description() do
+    "The Swiss Army Knife for tagged tuple pipelines"
+  end
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, "~> 0.24", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.24", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0", only: :dev, runtime: false}
+    ]
+  end
+
+  defp package() do
+    [
+      licenses: ["ISC"]
     ]
   end
 end
