@@ -39,7 +39,10 @@ defmodule OkThen.MixProject do
 
   defp package() do
     [
-      licenses: ["ISC"]
+      licenses: ["ISC"],
+      links: %{
+        "GitHub" => "https://github.com/flexibility-org/ok_then"
+      }
     ]
   end
 end
