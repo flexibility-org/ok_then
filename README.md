@@ -13,6 +13,7 @@ and **default values**? Wish there were a really **consistent** and
 * [How to install](#installation)
 * [Why does this exist?](#why)
 * [API Documentation](https://hexdocs.pm/ok_then/OkThen.Result.html)
+* [Elixir Forum Thread](https://elixirforum.com/t/39983)
 
 ## At a glance
 
