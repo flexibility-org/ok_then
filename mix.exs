@@ -50,6 +50,7 @@ defmodule OkThen.MixProject do
       licenses: ["ISC"],
       links: %{
         "GitHub" => "https://github.com/flexibility-org/ok_then",
+        "Changelog" => "https://github.com/flexibility-org/ok_then/blob/main/CHANGELOG.md",
         "Elixir Forum" => "https://elixirforum.com/t/39983"
       }
     ]
