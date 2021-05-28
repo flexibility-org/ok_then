@@ -1676,8 +1676,8 @@ defmodule OkThen.Result do
       iex> "hello" |> Result.unwrap_or_else("default")
       "default"
   """
-  @spec unwrap_or_else(result_input(), any()) :: any()
-  def unwrap_or_else(result, default), do: tagged_unwrap_or_else(result, :ok, default)
+  @spec unwrap_or_else(result_input(), func_or_value(any())) :: any()
+  def unwrap_or_else(result, func_or_value), do: tagged_unwrap_or_else(result, :ok, func_or_value)
 
   @doc """
   Same as `unwrap_or_else/2`, except raises `ArgumentError` if `result` is not tagged `:ok`.
@@ -1750,8 +1750,9 @@ defmodule OkThen.Result do
       iex> "hello" |> Result.error_unwrap_or_else("default")
       "default"
   """
-  @spec error_unwrap_or_else(result_input(), any()) :: any()
-  def error_unwrap_or_else(result, default), do: tagged_unwrap_or_else(result, :error, default)
+  @spec error_unwrap_or_else(result_input(), func_or_value(any())) :: any()
+  def error_unwrap_or_else(result, func_or_value),
+    do: tagged_unwrap_or_else(result, :error, func_or_value)
 
   @doc """
   Same as `error_unwrap_or_else/2`, except raises `ArgumentError` if `result` is not tagged
@@ -1826,11 +1827,7 @@ defmodule OkThen.Result do
       iex> "hello" |> Result.tagged_unwrap_or_else(:untagged, "default")
       "hello"
   """
-  @spec tagged_unwrap_or_else(
-          result_input(),
-          atom(),
-          (atom(), any() -> any()) | (any() -> any()) | any()
-        ) :: any()
+  @spec tagged_unwrap_or_else(result_input(), atom(), func_or_value(any())) :: any()
   def tagged_unwrap_or_else(result, tag, func_or_value) do
     normalized_result = Private.normalize_result_input(result)
 
