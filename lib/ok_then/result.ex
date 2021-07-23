@@ -1712,16 +1712,16 @@ defmodule OkThen.Result do
       {}
 
       iex> :error |> Result.unwrap!()
-      ** (ArgumentError) Value is not tagged ok: :error.
+      ** (ArgumentError) Result is not tagged ok: :error.
 
       iex> {:error, "hello"} |> Result.unwrap!()
-      ** (ArgumentError) Value is not tagged ok: {:error, "hello"}.
+      ** (ArgumentError) Result is not tagged ok: {:error, "hello"}.
 
       iex> :none |> Result.unwrap!()
-      ** (ArgumentError) Value is not tagged ok: :none.
+      ** (ArgumentError) Result is not tagged ok: :none.
 
       iex> "hello" |> Result.unwrap!()
-      ** (ArgumentError) Value is not tagged ok: "hello".
+      ** (ArgumentError) Result is not tagged ok: "hello".
   """
   @spec unwrap!(result_input()) :: any()
   def unwrap!(result), do: tagged_unwrap!(result, :ok)
@@ -1788,16 +1788,16 @@ defmodule OkThen.Result do
       {}
 
       iex> :ok |> Result.error_unwrap!()
-      ** (ArgumentError) Value is not tagged error: :ok.
+      ** (ArgumentError) Result is not tagged error: :ok.
 
       iex> {:ok, "hello"} |> Result.error_unwrap!()
-      ** (ArgumentError) Value is not tagged error: {:ok, "hello"}.
+      ** (ArgumentError) Result is not tagged error: {:ok, "hello"}.
 
       iex> :none |> Result.error_unwrap!()
-      ** (ArgumentError) Value is not tagged error: :none.
+      ** (ArgumentError) Result is not tagged error: :none.
 
       iex> "hello" |> Result.error_unwrap!()
-      ** (ArgumentError) Value is not tagged error: "hello".
+      ** (ArgumentError) Result is not tagged error: "hello".
   """
   @spec error_unwrap!(result_input()) :: any()
   def error_unwrap!(result), do: tagged_unwrap!(result, :error)
@@ -1872,19 +1872,19 @@ defmodule OkThen.Result do
       {}
 
       iex> :error |> Result.tagged_unwrap!(:ok)
-      ** (ArgumentError) Value is not tagged ok: :error.
+      ** (ArgumentError) Result is not tagged ok: :error.
 
       iex> {:ok, "hello"} |> Result.tagged_unwrap!(:error)
-      ** (ArgumentError) Value is not tagged error: {:ok, "hello"}.
+      ** (ArgumentError) Result is not tagged error: {:ok, "hello"}.
 
       iex> :none |> Result.tagged_unwrap!(:ok)
-      ** (ArgumentError) Value is not tagged ok: :none.
+      ** (ArgumentError) Result is not tagged ok: :none.
 
       iex> "hello" |> Result.tagged_unwrap!(:untagged)
       "hello"
 
       iex> "hello" |> Result.tagged_unwrap!(:ok)
-      ** (ArgumentError) Value is not tagged ok: "hello".
+      ** (ArgumentError) Result is not tagged ok: "hello".
   """
   @spec tagged_unwrap!(result_input(), atom()) :: any()
   def tagged_unwrap!(result, tag) do
@@ -1895,7 +1895,7 @@ defmodule OkThen.Result do
       |> Tuple.delete_at(0)
       |> Private.normalize_value()
     else
-      raise(ArgumentError, "Value is not tagged #{tag}: #{Kernel.inspect(result)}.")
+      raise(ArgumentError, "Result is not tagged #{tag}: #{Kernel.inspect(result)}.")
     end
   end
 end
