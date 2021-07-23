@@ -494,6 +494,93 @@ defmodule OkThen.Result do
   end
 
   @doc """
+  If `result` is tagged `:ok`, passes the wrapped value into the provided function. If
+  `check_function` returns `true` the `result` is returned unchanged. Otherwise, returns `:none`.
+
+  Equivalent to `tagged_ensure(result, :ok, check_function)`. See `tagged_ensure/3`.
+
+  ## Examples
+
+      iex> {:ok, "hello"} |> Result.ensure(&String.length(&1) == 5)
+      {:ok, "hello"}
+
+      iex> {:ok, "hello"} |> Result.ensure(&String.length(&1) == 0)
+      :none
+
+      iex> :some |> Result.ensure(&String.length(&1) == 0)
+      :some
+
+      iex> :error |> Result.ensure(&String.length(&1) == 0)
+      :error
+
+      iex> nil |> Result.ensure(&String.length(&1) == 0)
+      nil
+  """
+  @spec ensure(result_input(), (any() -> boolean())) :: result_input()
+  def ensure(result, check_function) when is_function(check_function, 1),
+    do: tagged_ensure(result, :ok, check_function)
+
+  @doc """
+  If `result` is tagged `:error`, passes the wrapped value into the provided function. If
+  `check_function` returns `true` the `result` is returned unchanged. Otherwise, returns `:none`.
+
+  Equivalent to `tagged_ensure(result, :error, check_function)`. See `tagged_ensure/3`.
+
+  ## Examples
+
+      iex> {:error, "hello"} |> Result.error_ensure(&String.length(&1) == 5)
+      {:error, "hello"}
+
+      iex> {:error, "hello"} |> Result.error_ensure(&String.length(&1) == 0)
+      :none
+
+      iex> :some |> Result.error_ensure(&String.length(&1) == 0)
+      :some
+
+      iex> :ok |> Result.error_ensure(&String.length(&1) == 0)
+      :ok
+
+      iex> nil |> Result.error_ensure(&String.length(&1) == 0)
+      nil
+  """
+  @spec error_ensure(result_input(), (any() -> boolean())) :: result_input()
+  def error_ensure(result, check_function) when is_function(check_function, 1),
+    do: tagged_ensure(result, :error, check_function)
+
+  @doc """
+  If `result` is tagged with the specified `tag` atom, passes the wrapped value into the provided
+  function. If `check_function` returns `true` the `result` is returned unchanged. Otherwise,
+  returns `:none`.
+
+  ## Examples
+
+      iex> {:ok, "hello"} |> Result.tagged_ensure(:ok, &String.length(&1) == 5)
+      {:ok, "hello"}
+
+      iex> {:ok, "hello"} |> Result.tagged_ensure(:ok, &String.length(&1) == 0)
+      :none
+
+      iex> :some |> Result.tagged_ensure(:ok, &String.length(&1) == 0)
+      :some
+
+      iex> :error |> Result.tagged_ensure(:ok, &String.length(&1) == 0)
+      :error
+
+      iex> nil |> Result.tagged_ensure(:ok, &String.length(&1) == 0)
+      nil
+  """
+  @spec tagged_ensure(result_input(), atom(), (any() -> boolean())) :: result_input()
+  def tagged_ensure(result, tag, check_function) when is_function(check_function, 1) do
+    tagged_then(result, tag, fn value ->
+      if check_function.(value) do
+        result
+      else
+        :none
+      end
+    end)
+  end
+
+  @doc """
   Converts `value` into a `maybe_is(tag)` result: `{atom(), any()} | :none`
 
   If `value` is `nil`, then the result will be `:none`. See also `from_as!/2`.
