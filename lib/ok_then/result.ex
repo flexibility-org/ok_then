@@ -330,10 +330,10 @@ defmodule OkThen.Result do
       "bare value"
   """
   @spec tagged_consume(result_input(), atom(), (any() -> any())) :: out when out: any()
-  def tagged_consume(result, tag, func_or_value \\ & &1)
-      when is_atom(tag) and is_function(func_or_value) do
+  def tagged_consume(result, tag, function \\ & &1)
+      when is_atom(tag) and is_function(function) do
     tagged_then(result, tag, fn value ->
-      Private.map_value(value, func_or_value)
+      Private.map_value(value, function)
       :none
     end)
   end
