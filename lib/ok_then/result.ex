@@ -1497,6 +1497,17 @@ defmodule OkThen.Result do
   @spec error_then(result_input(), func_or_value(out)) :: out when out: any()
   def error_then(result, func_or_value), do: tagged_then(result, :error, func_or_value)
 
+  @doc_unwrapped_nils """
+  ## A note about unwrapped nils
+
+  If `result` is `nil`, it is intprereted as `:none`. This may be slightly unintuitive, so if
+  you're curious, this is the reason:
+
+  Untagged results are internally wrapped as an `{:untagged, any()}` using `Result.from_as(value,
+  :untagged)`, and if `value` is `nil`, the return value of `Result.from_as/2` will always be
+  `:none`.
+  """
+
   @doc """
   If `result` is tagged `:none`, calls `func_or_value` and returns the result. If `func_or_value`
   is not a function, then it is returned as-is.
@@ -1510,6 +1521,8 @@ defmodule OkThen.Result do
   `{:untagged, value}` tuple.
 
   Equivalent to `tagged_then(result, :none, func_or_value)`. See `tagged_then/3`.
+
+  #{@doc_unwrapped_nils}
 
   ## Examples
 
@@ -1539,6 +1552,9 @@ defmodule OkThen.Result do
 
       iex> "bare value" |> Result.none_then(fn _ -> :ok end)
       "bare value"
+
+      iex> nil |> Result.none_then(:ok)
+      :ok
   """
   @spec none_then(result_input(), func_or_value(out)) :: out when out: any()
   def none_then(result, func_or_value), do: tagged_then(result, :none, func_or_value)
@@ -1555,6 +1571,8 @@ defmodule OkThen.Result do
   Be aware that no attempt is made to ensure the return value from the function is a tagged tuple.
   However, all functions are tolerant of untagged results, and on input will interpret them as an
   `{:untagged, value}` tuple.
+
+  #{@doc_unwrapped_nils}
 
   ## Examples
 
@@ -1617,6 +1635,9 @@ defmodule OkThen.Result do
 
       iex> "bare value" |> Result.tagged_then(:untagged, :none)
       :none
+
+      iex> nil |> Result.tagged_then(:none, :ok)
+      :ok
   """
   @spec tagged_then(result_input(), atom(), func_or_value(out)) :: out when out: any()
   def tagged_then(result, tag, func_or_value) do
