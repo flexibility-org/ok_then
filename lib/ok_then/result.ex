@@ -494,6 +494,95 @@ defmodule OkThen.Result do
   end
 
   @doc """
+  If `result` is tagged `:ok`, passes the wrapped value into the provided function. If
+  `check_function` returns a truthy value, `result` is returned unchanged. Otherwise, returns
+  `:none`.
+
+  Equivalent to `tagged_filter(result, :ok, check_function)`. See `tagged_filter/3`.
+
+  ## Examples
+
+      iex> {:ok, "hello"} |> Result.filter(&String.length(&1) == 5)
+      {:ok, "hello"}
+
+      iex> {:ok, "hello"} |> Result.filter(&String.length(&1) == 0)
+      :none
+
+      iex> :some |> Result.filter(&String.length(&1) == 0)
+      :some
+
+      iex> :error |> Result.filter(&String.length(&1) == 0)
+      :error
+
+      iex> nil |> Result.filter(&String.length(&1) == 0)
+      nil
+  """
+  @spec filter(result_input(), (any() -> as_boolean(any()))) :: result_input()
+  def filter(result, check_function) when is_function(check_function, 1),
+    do: tagged_filter(result, :ok, check_function)
+
+  @doc """
+  If `result` is tagged `:error`, passes the wrapped value into the provided function. If
+  `check_function` returns a truthy value, `result` is returned unchanged. Otherwise, returns
+  `:none`.
+
+  Equivalent to `tagged_filter(result, :error, check_function)`. See `tagged_filter/3`.
+
+  ## Examples
+
+      iex> {:error, "hello"} |> Result.error_filter(&String.length(&1) == 5)
+      {:error, "hello"}
+
+      iex> {:error, "hello"} |> Result.error_filter(&String.length(&1) == 0)
+      :none
+
+      iex> :some |> Result.error_filter(&String.length(&1) == 0)
+      :some
+
+      iex> :ok |> Result.error_filter(&String.length(&1) == 0)
+      :ok
+
+      iex> nil |> Result.error_filter(&String.length(&1) == 0)
+      nil
+  """
+  @spec error_filter(result_input(), (any() -> as_boolean(any()))) :: result_input()
+  def error_filter(result, check_function) when is_function(check_function, 1),
+    do: tagged_filter(result, :error, check_function)
+
+  @doc """
+  If `result` is tagged with the specified `tag` atom, passes the wrapped value into the provided
+  function. If `check_function` returns a truthy value, `result` is returned unchanged. Otherwise,
+  returns `:none`.
+
+  ## Examples
+
+      iex> {:ok, "hello"} |> Result.tagged_filter(:ok, &String.length(&1) == 5)
+      {:ok, "hello"}
+
+      iex> {:ok, "hello"} |> Result.tagged_filter(:ok, &String.length(&1) == 0)
+      :none
+
+      iex> :some |> Result.tagged_filter(:ok, &String.length(&1) == 0)
+      :some
+
+      iex> :error |> Result.tagged_filter(:ok, &String.length(&1) == 0)
+      :error
+
+      iex> nil |> Result.tagged_filter(:ok, &String.length(&1) == 0)
+      nil
+  """
+  @spec tagged_filter(result_input(), atom(), (any() -> as_boolean(any()))) :: result_input()
+  def tagged_filter(result, tag, check_function) when is_function(check_function, 1) do
+    tagged_then(result, tag, fn value ->
+      if check_function.(value) do
+        result
+      else
+        :none
+      end
+    end)
+  end
+
+  @doc """
   Converts `value` into a `maybe_is(tag)` result: `{atom(), any()} | :none`
 
   If `value` is `nil`, then the result will be `:none`. See also `from_as!/2`.
