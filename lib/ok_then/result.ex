@@ -494,6 +494,143 @@ defmodule OkThen.Result do
   end
 
   @doc """
+  Raises `ArgumentError` if `result` is not tagged `:ok`. Otherwise, returns `result` unchanged.
+  You may optionally provide `check_function/1`, which will receive the unwrapped value and must
+  return a boolean. If the return value is `false`, the function will raise.
+
+  Equivalent to `tagged_assert!(result, :ok, check_function)`. See `tagged_assert!/3`.
+
+  ## Examples
+
+      iex> {:ok, "hello"} |> Result.assert!()
+      {:ok, "hello"}
+
+      iex> {:ok, "hello"} |> Result.assert!(&String.length(&1) == 5)
+      {:ok, "hello"}
+
+      iex> {:ok, "hello"} |> Result.assert!(&String.length(&1) == 0)
+      ** (ArgumentError) Result value failed assertion: {:ok, "hello"}.
+
+      iex> :error |> Result.assert!()
+      ** (ArgumentError) Result is not tagged ok: :error.
+
+      iex> {:error, "hello"} |> Result.assert!()
+      ** (ArgumentError) Result is not tagged ok: {:error, "hello"}.
+
+      iex> :none |> Result.assert!()
+      ** (ArgumentError) Result is not tagged ok: :none.
+
+      iex> "hello" |> Result.assert!()
+      ** (ArgumentError) Result is not tagged ok: "hello".
+  """
+  @spec assert!(result_input(), (any() -> boolean())) :: result_input()
+  def assert!(result, check_function \\ fn _ -> true end),
+    do: tagged_assert!(result, :ok, check_function)
+
+  @doc """
+  Raises `ArgumentError` if `result` is not tagged `:error`. Otherwise, returns `result`
+  unchanged. You may optionally provide `check_function/1`, which will receive the unwrapped value
+  and must return a boolean. If the return value is `false`, the function will raise.
+
+  Equivalent to `tagged_assert!(result, :error, check_function)`. See `tagged_assert!/3`.
+
+  ## Examples
+
+      iex> {:error, "hello"} |> Result.error_assert!()
+      {:error, "hello"}
+
+      iex> {:error, "hello"} |> Result.error_assert!(&String.length(&1) == 5)
+      {:error, "hello"}
+
+      iex> {:error, "hello"} |> Result.error_assert!(&String.length(&1) == 0)
+      ** (ArgumentError) Result value failed assertion: {:error, "hello"}.
+
+      iex> :ok |> Result.error_assert!()
+      ** (ArgumentError) Result is not tagged error: :ok.
+
+      iex> {:ok, "hello"} |> Result.error_assert!()
+      ** (ArgumentError) Result is not tagged error: {:ok, "hello"}.
+
+      iex> :none |> Result.error_assert!()
+      ** (ArgumentError) Result is not tagged error: :none.
+
+      iex> "hello" |> Result.error_assert!()
+      ** (ArgumentError) Result is not tagged error: "hello".
+  """
+  @spec error_assert!(result_input(), (any() -> boolean())) :: result_input()
+  def error_assert!(result, check_function \\ fn _ -> true end),
+    do: tagged_assert!(result, :error, check_function)
+
+  @doc """
+  Raises `ArgumentError` if `result` is not tagged `:none`. Otherwise, returns `result` unchanged.
+
+  Equivalent to `tagged_assert!(result, :none)`. See `tagged_assert!/3`.
+
+  ## Examples
+
+      iex> :none |> Result.none_assert!()
+      :none
+
+      iex> {:ok, "hello"} |> Result.none_assert!()
+      ** (ArgumentError) Result is not tagged none: {:ok, "hello"}.
+  """
+  @spec none_assert!(result_input()) :: :none
+  def none_assert!(result), do: tagged_assert!(result, :none)
+
+  @doc """
+  Raises `ArgumentError` if `result` is not tagged with the specified `tag` atom. Otherwise,
+  returns `result` unchanged. You may optionally provide `check_function/1`, which will receive
+  the unwrapped value and must return a boolean. If the return value is `false`, the function will
+  raise.
+
+  ## Examples
+
+      iex> {:ok, "hello"} |> Result.tagged_assert!(:ok)
+      {:ok, "hello"}
+
+      iex> {:ok, "hello"} |> Result.tagged_assert!(:ok, &String.length(&1) == 5)
+      {:ok, "hello"}
+
+      iex> {:ok, "hello"} |> Result.tagged_assert!(:ok, &String.length(&1) == 0)
+      ** (ArgumentError) Result value failed assertion: {:ok, "hello"}.
+
+      iex> :some |> Result.tagged_assert!(:some)
+      :some
+
+      iex> :error |> Result.tagged_assert!(:ok)
+      ** (ArgumentError) Result is not tagged ok: :error.
+
+      iex> {:ok, "hello"} |> Result.tagged_assert!(:error)
+      ** (ArgumentError) Result is not tagged error: {:ok, "hello"}.
+
+      iex> :none |> Result.tagged_assert!(:ok)
+      ** (ArgumentError) Result is not tagged ok: :none.
+
+      iex> "hello" |> Result.tagged_assert!(:untagged)
+      "hello"
+
+      iex> "hello" |> Result.tagged_assert!(:ok)
+      ** (ArgumentError) Result is not tagged ok: "hello".
+  """
+  @spec tagged_assert!(result_input(), atom(), (any() -> boolean())) :: result_input()
+  def tagged_assert!(result, tag, check_function \\ fn _ -> true end) do
+    normalized_result = Private.normalize_result_input(result)
+
+    if !is_tagged(normalized_result, tag) do
+      raise(ArgumentError, "Result is not tagged #{tag}: #{Kernel.inspect(result)}.")
+    end
+
+    case normalized_result do
+      {^tag, value} ->
+        if check_function.(value) do
+          result
+        else
+          raise(ArgumentError, "Result value failed assertion: #{Kernel.inspect(result)}.")
+        end
+    end
+  end
+
+  @doc """
   Converts `value` into a `maybe_is(tag)` result: `{atom(), any()} | :none`
 
   If `value` is `nil`, then the result will be `:none`. See also `from_as!/2`.
