@@ -1721,7 +1721,7 @@ defmodule OkThen.Result do
       ** (ArgumentError) Value is not tagged ok: :none.
 
       iex> "hello" |> Result.unwrap!()
-      ** (ArgumentError) Value is not tagged ok: {:untagged, "hello"}.
+      ** (ArgumentError) Value is not tagged ok: "hello".
   """
   @spec unwrap!(result_input()) :: any()
   def unwrap!(result), do: tagged_unwrap!(result, :ok)
@@ -1797,7 +1797,7 @@ defmodule OkThen.Result do
       ** (ArgumentError) Value is not tagged error: :none.
 
       iex> "hello" |> Result.error_unwrap!()
-      ** (ArgumentError) Value is not tagged error: {:untagged, "hello"}.
+      ** (ArgumentError) Value is not tagged error: "hello".
   """
   @spec error_unwrap!(result_input()) :: any()
   def error_unwrap!(result), do: tagged_unwrap!(result, :error)
@@ -1884,18 +1884,17 @@ defmodule OkThen.Result do
       "hello"
 
       iex> "hello" |> Result.tagged_unwrap!(:ok)
-      ** (ArgumentError) Value is not tagged ok: {:untagged, "hello"}.
+      ** (ArgumentError) Value is not tagged ok: "hello".
   """
   @spec tagged_unwrap!(result_input(), atom()) :: any()
   def tagged_unwrap!(result, tag) do
-    result = Private.normalize_result_input(result)
+    normalized_result = Private.normalize_result_input(result)
 
-    if is_tagged(result, tag) do
-      result
+    if is_tagged(normalized_result, tag) do
+      normalized_result
       |> Tuple.delete_at(0)
       |> Private.normalize_value()
     else
-      result = Private.normalize_result_output(result)
       raise(ArgumentError, "Value is not tagged #{tag}: #{Kernel.inspect(result)}.")
     end
   end
