@@ -495,82 +495,84 @@ defmodule OkThen.Result do
 
   @doc """
   If `result` is tagged `:ok`, passes the wrapped value into the provided function. If
-  `check_function` returns `true` the `result` is returned unchanged. Otherwise, returns `:none`.
+  `check_function` returns a truthy value, `result` is returned unchanged. Otherwise, returns
+  `:none`.
 
-  Equivalent to `tagged_ensure(result, :ok, check_function)`. See `tagged_ensure/3`.
+  Equivalent to `tagged_filter(result, :ok, check_function)`. See `tagged_filter/3`.
 
   ## Examples
 
-      iex> {:ok, "hello"} |> Result.ensure(&String.length(&1) == 5)
+      iex> {:ok, "hello"} |> Result.filter(&String.length(&1) == 5)
       {:ok, "hello"}
 
-      iex> {:ok, "hello"} |> Result.ensure(&String.length(&1) == 0)
+      iex> {:ok, "hello"} |> Result.filter(&String.length(&1) == 0)
       :none
 
-      iex> :some |> Result.ensure(&String.length(&1) == 0)
+      iex> :some |> Result.filter(&String.length(&1) == 0)
       :some
 
-      iex> :error |> Result.ensure(&String.length(&1) == 0)
+      iex> :error |> Result.filter(&String.length(&1) == 0)
       :error
 
-      iex> nil |> Result.ensure(&String.length(&1) == 0)
+      iex> nil |> Result.filter(&String.length(&1) == 0)
       nil
   """
-  @spec ensure(result_input(), (any() -> boolean())) :: result_input()
-  def ensure(result, check_function) when is_function(check_function, 1),
-    do: tagged_ensure(result, :ok, check_function)
+  @spec filter(result_input(), (any() -> as_boolean(any()))) :: result_input()
+  def filter(result, check_function) when is_function(check_function, 1),
+    do: tagged_filter(result, :ok, check_function)
 
   @doc """
   If `result` is tagged `:error`, passes the wrapped value into the provided function. If
-  `check_function` returns `true` the `result` is returned unchanged. Otherwise, returns `:none`.
+  `check_function` returns a truthy value, `result` is returned unchanged. Otherwise, returns
+  `:none`.
 
-  Equivalent to `tagged_ensure(result, :error, check_function)`. See `tagged_ensure/3`.
+  Equivalent to `tagged_filter(result, :error, check_function)`. See `tagged_filter/3`.
 
   ## Examples
 
-      iex> {:error, "hello"} |> Result.error_ensure(&String.length(&1) == 5)
+      iex> {:error, "hello"} |> Result.error_filter(&String.length(&1) == 5)
       {:error, "hello"}
 
-      iex> {:error, "hello"} |> Result.error_ensure(&String.length(&1) == 0)
+      iex> {:error, "hello"} |> Result.error_filter(&String.length(&1) == 0)
       :none
 
-      iex> :some |> Result.error_ensure(&String.length(&1) == 0)
+      iex> :some |> Result.error_filter(&String.length(&1) == 0)
       :some
 
-      iex> :ok |> Result.error_ensure(&String.length(&1) == 0)
+      iex> :ok |> Result.error_filter(&String.length(&1) == 0)
       :ok
 
-      iex> nil |> Result.error_ensure(&String.length(&1) == 0)
+      iex> nil |> Result.error_filter(&String.length(&1) == 0)
       nil
   """
-  @spec error_ensure(result_input(), (any() -> boolean())) :: result_input()
-  def error_ensure(result, check_function) when is_function(check_function, 1),
-    do: tagged_ensure(result, :error, check_function)
+  @spec error_filter(result_input(), (any() -> as_boolean(any()))) :: result_input()
+  def error_filter(result, check_function) when is_function(check_function, 1),
+    do: tagged_filter(result, :error, check_function)
 
   @doc """
   If `result` is tagged with the specified `tag` atom, passes the wrapped value into the provided
-  function. If `check_function` returns `true` the `result` is returned unchanged. Otherwise,
+  function. If `check_function` returns a truthy value, `result` is returned unchanged. Otherwise,
   returns `:none`.
 
   ## Examples
 
-      iex> {:ok, "hello"} |> Result.tagged_ensure(:ok, &String.length(&1) == 5)
+      iex> {:ok, "hello"} |> Result.tagged_filter(:ok, &String.length(&1) == 5)
       {:ok, "hello"}
 
-      iex> {:ok, "hello"} |> Result.tagged_ensure(:ok, &String.length(&1) == 0)
+      iex> {:ok, "hello"} |> Result.tagged_filter(:ok, &String.length(&1) == 0)
       :none
 
-      iex> :some |> Result.tagged_ensure(:ok, &String.length(&1) == 0)
+      iex> :some |> Result.tagged_filter(:ok, &String.length(&1) == 0)
       :some
 
-      iex> :error |> Result.tagged_ensure(:ok, &String.length(&1) == 0)
+      iex> :error |> Result.tagged_filter(:ok, &String.length(&1) == 0)
       :error
 
-      iex> nil |> Result.tagged_ensure(:ok, &String.length(&1) == 0)
+      iex> nil |> Result.tagged_filter(:ok, &String.length(&1) == 0)
       nil
   """
-  @spec tagged_ensure(result_input(), atom(), (any() -> boolean())) :: result_input()
-  def tagged_ensure(result, tag, check_function) when is_function(check_function, 1) do
+  @spec tagged_filter(result_input(), atom(), (any() -> as_boolean(any()))) :: result_input()
+  def tagged_filter(result, tag, check_function) when is_function(check_function, 1) do
     tagged_then(result, tag, fn value ->
       if check_function.(value) do
         result
