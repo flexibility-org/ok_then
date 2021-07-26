@@ -107,6 +107,13 @@ defmodule OkThen.Result.Enum do
         ok: [1, {2, 3}]
       }
 
+      iex> [{:ok, 1}, "hello", {1, 2}]
+      ...> |> Result.Enum.group_by_tag()
+      %{
+        ok: [1],
+        untagged: ["hello", {1, 2}]
+      }
+
       iex> []
       ...> |> Result.Enum.group_by_tag()
       %{}
