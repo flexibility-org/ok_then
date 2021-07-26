@@ -8,41 +8,6 @@ defmodule OkThen.Result.Enum do
   require Private
 
   @doc """
-  Collects an Enum of results into a map, with result values grouped by their tag.
-
-  ## Examples
-
-      iex> [:ok, :ok, :ok, :error, :error]
-      ...> |> Result.Enum.group_by_tag()
-      %{
-        error: [{}, {}],
-        ok: [{}, {}, {}]
-      }
-
-      iex> [{:ok, 1}, {:ok, 2}, {:ok, 3}, {:error, 4}, {:error, 5}]
-      ...> |> Result.Enum.group_by_tag()
-      %{
-        error: [4, 5],
-        ok: [1, 2, 3]
-      }
-
-      iex> [{:ok, 1}, {:ok, 2, 3}, :none, {:error, 4}, {:another, 5}]
-      ...> |> Result.Enum.group_by_tag()
-      %{
-        another: [5],
-        error: [4],
-        none: [{}],
-        ok: [1, {2, 3}]
-      }
-  """
-  @spec group_by_tag([Result.tagged()]) :: %{atom() => [any()]}
-  def group_by_tag(results) do
-    results
-    |> Enum.map(&Private.normalize_result_input/1)
-    |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
-  end
-
-  @doc """
   Collects an Enum of results into a single result. If all results were tagged `:ok`, then a
   result will be returned tagged with `:ok`, whose value is a list of the wrapped values from each
   element in the list. Otherwise, the result whose tag didn't match `tag` is returned.
@@ -104,5 +69,40 @@ defmodule OkThen.Result.Enum do
       _result, acc -> acc
     end)
     |> Result.tagged_map(tag, &Enum.reverse/1)
+  end
+
+  @doc """
+  Collects an Enum of results into a map, with result values grouped by their tag.
+
+  ## Examples
+
+      iex> [:ok, :ok, :ok, :error, :error]
+      ...> |> Result.Enum.group_by_tag()
+      %{
+        error: [{}, {}],
+        ok: [{}, {}, {}]
+      }
+
+      iex> [{:ok, 1}, {:ok, 2}, {:ok, 3}, {:error, 4}, {:error, 5}]
+      ...> |> Result.Enum.group_by_tag()
+      %{
+        error: [4, 5],
+        ok: [1, 2, 3]
+      }
+
+      iex> [{:ok, 1}, {:ok, 2, 3}, :none, {:error, 4}, {:another, 5}]
+      ...> |> Result.Enum.group_by_tag()
+      %{
+        another: [5],
+        error: [4],
+        none: [{}],
+        ok: [1, {2, 3}]
+      }
+  """
+  @spec group_by_tag([Result.tagged()]) :: %{atom() => [any()]}
+  def group_by_tag(results) do
+    results
+    |> Enum.map(&Private.normalize_result_input/1)
+    |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
   end
 end
