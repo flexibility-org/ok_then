@@ -31,6 +31,10 @@ defmodule OkThen.Result.Enum do
       iex> [{:ok, 1}, {:ok, 1, 2}, {:something, 1}, :ok]
       ...> |> Result.Enum.collect()
       {:something, 1}
+
+      iex> []
+      ...> |> Result.Enum.collect()
+      {:ok, []}
   """
   @spec collect([Result.tagged()]) :: {atom(), [any()]}
   def collect(results), do: collect_tagged(results, :ok)
@@ -58,6 +62,10 @@ defmodule OkThen.Result.Enum do
       iex> [{:ok, 1}, {:ok, 1, 2}, {:something, 1}, :ok]
       ...> |> Result.Enum.collect_tagged(:ok)
       {:something, 1}
+
+      iex> []
+      ...> |> Result.Enum.collect_tagged(:ok)
+      {:ok, []}
   """
   @spec collect_tagged([Result.tagged()], atom()) :: {atom(), [any()]}
   def collect_tagged(results, tag) do
@@ -98,6 +106,10 @@ defmodule OkThen.Result.Enum do
         none: [{}],
         ok: [1, {2, 3}]
       }
+
+      iex> []
+      ...> |> Result.Enum.group_by_tag()
+      %{}
   """
   @spec group_by_tag([Result.tagged()]) :: %{atom() => [any()]}
   def group_by_tag(results) do
