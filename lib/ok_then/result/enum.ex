@@ -119,7 +119,7 @@ defmodule OkThen.Result.Enum do
       %{}
   """
   @spec group_by_tag([Result.tagged()]) :: %{atom() => [any()]}
-  def group_by_tag(results) do
+  def group_by_tag(results) when is_list(results) do
     results
     |> Enum.map(&Private.normalize_result_input/1)
     |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
