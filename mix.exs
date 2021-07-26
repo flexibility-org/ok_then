@@ -36,7 +36,11 @@ defmodule OkThen.MixProject do
   defp docs() do
     [
       groups_for_functions: [
-        Guards: &(&1[:section] == :guards)
+        Guards: &(&1[:section] == :guards),
+        "Functions (:ok)": &(&1[:section] == :ok_functions),
+        "Functions (:error)": &(&1[:section] == :error_functions),
+        "Functions (:none)": &(&1[:section] == :none_functions),
+        "Functions (any tag)": &(&1[:section] == :generic_functions)
       ],
       extras: [
         "README.md"

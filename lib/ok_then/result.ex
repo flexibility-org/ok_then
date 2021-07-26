@@ -212,6 +212,7 @@ defmodule OkThen.Result do
   """
   defguard is_none(value) when Private.is_tagged_with_atom(value, :none)
 
+  @doc section: :ok_functions
   @doc """
   If `result` is tagged with `:ok`, passes the wrapped value into the provided function (if
   provided) and returns `:none`.
@@ -253,6 +254,7 @@ defmodule OkThen.Result do
   def consume(result, func_or_value \\ & &1),
     do: tagged_consume(result, :ok, func_or_value)
 
+  @doc section: :error_functions
   @doc """
   If `result` is tagged with `:error`, passes the wrapped value into the provided function (if
   provided) and returns `:none`.
@@ -294,6 +296,7 @@ defmodule OkThen.Result do
   def error_consume(result, func_or_value \\ & &1),
     do: tagged_consume(result, :error, func_or_value)
 
+  @doc section: :generic_functions
   @doc """
   If `result` is tagged with the specified `tag` atom, passes the wrapped value into the provided
   function (if provided) and returns `:none`.
@@ -338,6 +341,7 @@ defmodule OkThen.Result do
     end)
   end
 
+  @doc section: :none_functions
   @doc """
   If `result` is tagged `:none`, returns `func_or_value` wrapped as an `:ok` result. Otherwise,
   returns `result`. If `func_or_value` is a function, the returned value is used as the new value.
@@ -388,6 +392,7 @@ defmodule OkThen.Result do
         when input: result_input(), out: any()
   def default(result, func_or_value), do: default_as(result, :ok, func_or_value)
 
+  @doc section: :none_functions
   @doc """
   If `result` is tagged `:none`, returns `func_or_value` wrapped as an `:error` result. Otherwise,
   returns `result`. If `func_or_value` is a function, the returned value is used as the new value.
@@ -438,6 +443,7 @@ defmodule OkThen.Result do
         when input: result_input(), out: any()
   def default_error(result, func_or_value), do: default_as(result, :error, func_or_value)
 
+  @doc section: :none_functions
   @doc """
   If `result` is tagged `:none`, returns `func_or_value` wrapped as a result with the given `tag`.
   Otherwise, returns `result`. If `func_or_value` is a function, the returned value is used as the
@@ -493,6 +499,7 @@ defmodule OkThen.Result do
     end)
   end
 
+  @doc section: :ok_functions
   @doc """
   If `result` is tagged `:ok`, passes the wrapped value into the provided function. If
   `check_function` returns a truthy value, `result` is returned unchanged. Otherwise, returns
@@ -521,6 +528,7 @@ defmodule OkThen.Result do
   def filter(result, check_function) when is_function(check_function, 1),
     do: tagged_filter(result, :ok, check_function)
 
+  @doc section: :error_functions
   @doc """
   If `result` is tagged `:error`, passes the wrapped value into the provided function. If
   `check_function` returns a truthy value, `result` is returned unchanged. Otherwise, returns
@@ -549,6 +557,7 @@ defmodule OkThen.Result do
   def error_filter(result, check_function) when is_function(check_function, 1),
     do: tagged_filter(result, :error, check_function)
 
+  @doc section: :generic_functions
   @doc """
   If `result` is tagged with the specified `tag` atom, passes the wrapped value into the provided
   function. If `check_function` returns a truthy value, `result` is returned unchanged. Otherwise,
@@ -711,6 +720,7 @@ defmodule OkThen.Result do
   @spec from_error!(e) :: error(e) when e: any()
   def from_error!(value), do: from_as!(value, :error)
 
+  @doc section: :ok_functions
   @doc """
   If `result` is tagged `:ok`, transforms the wrapped value by passing it into the provided
   mapping function, and replacing it with the returned value. If `func_or_value` is not a
@@ -776,6 +786,7 @@ defmodule OkThen.Result do
   @spec map(t, func_or_value(out)) :: t | :ok | ok(out) when t: result_input(), out: any()
   def map(result, func_or_value), do: tagged_map(result, :ok, func_or_value)
 
+  @doc section: :error_functions
   @doc """
   If `result` is tagged `:error`, transforms the wrapped value by passing it into the provided
   mapping function, and replacing it with the returned value. If `func_or_value` is not a
@@ -842,6 +853,7 @@ defmodule OkThen.Result do
         when t: result_input(), out: any()
   def error_map(result, func_or_value), do: tagged_map(result, :error, func_or_value)
 
+  @doc section: :generic_functions
   @doc """
   If `result` is tagged with the specified `tag` atom, transforms the wrapped value by passing it
   into the provided mapping function, and replacing it with the returned value. If a function is
@@ -989,6 +1001,9 @@ defmodule OkThen.Result do
 
   ## Examples
 
+      iex> Result.normalize({:ok, "hello"})
+      {:ok, "hello"}
+
       iex> Result.normalize!("hello")
       ** (ArgumentError) Result is untagged: "hello"
   """
@@ -1001,6 +1016,7 @@ defmodule OkThen.Result do
     end
   end
 
+  @doc section: :ok_functions
   @doc """
   If `result` is _not_ tagged with `:ok`, passes the tag and wrapped value into the provided
   function and returns the result. If the function has arity 1, then only the wrapped value is
@@ -1105,6 +1121,7 @@ defmodule OkThen.Result do
   @spec or_else(result_input(), func_or_value(atom(), out)) :: out when out: any()
   def or_else(result, func_or_value), do: tagged_or_else(result, :ok, func_or_value)
 
+  @doc section: :error_functions
   @doc """
   If `result` is _not_ tagged with `:error`, passes the tag and wrapped value into the provided
   function and returns the result. If the function has arity 1, then only the wrapped value is
@@ -1209,6 +1226,7 @@ defmodule OkThen.Result do
   @spec error_or_else(result_input(), func_or_value(atom(), out)) :: out when out: any()
   def error_or_else(result, func_or_value), do: tagged_or_else(result, :error, func_or_value)
 
+  @doc section: :generic_functions
   @doc """
   If `result` is _not_ tagged with the specified `tag` atom, passes the tag and wrapped value into
   the provided function and returns the result. If the function has arity 1, then only the wrapped
@@ -1327,6 +1345,7 @@ defmodule OkThen.Result do
     end
   end
 
+  @doc section: :ok_functions
   @doc """
   If `result` is tagged `:ok`, replaces the tag with `new_tag`, returning a new tagged tuple.
 
@@ -1355,6 +1374,7 @@ defmodule OkThen.Result do
   @spec retag(result_input(), new_tag) :: new_tag | {new_tag, any()} when new_tag: atom()
   def retag(result, new_tag), do: tagged_retag(result, :ok, new_tag)
 
+  @doc section: :error_functions
   @doc """
   If `result` is tagged `:error`, replaces the tag with `new_tag`, returning a new tagged tuple.
 
@@ -1383,6 +1403,7 @@ defmodule OkThen.Result do
   @spec error_retag(result_input(), new_tag) :: new_tag | {new_tag, any()} when new_tag: atom()
   def error_retag(result, new_tag), do: tagged_retag(result, :error, new_tag)
 
+  @doc section: :none_functions
   @doc """
   If `result` is tagged `:none`, replaces the tag with `new_tag`.
 
@@ -1408,6 +1429,7 @@ defmodule OkThen.Result do
   @spec none_retag(result_input(), new_tag) :: new_tag | {new_tag, any()} when new_tag: atom()
   def none_retag(result, new_tag), do: tagged_retag(result, :none, new_tag)
 
+  @doc section: :generic_functions
   @doc """
   If `result` is tagged with the specified `tag` atom, replaces the tag with `new_tag`, returning
   a new tagged tuple.
@@ -1455,6 +1477,7 @@ defmodule OkThen.Result do
     raise(ArgumentError, "Expected atom as new tag, got: #{Kernel.inspect(new_tag)}.")
   end
 
+  @doc section: :ok_functions
   @doc """
   If `result` is tagged `:ok`, passes the wrapped value into `func_or_value` and returns the
   result. If a function is not provided, the argument at the same position is returned as-is.
@@ -1519,6 +1542,7 @@ defmodule OkThen.Result do
   @spec then(result_input(), func_or_value(out)) :: out when out: any()
   def then(result, func_or_value), do: tagged_then(result, :ok, func_or_value)
 
+  @doc section: :error_functions
   @doc """
   If `result` is tagged `:error`, passes the wrapped value into `func_or_value` and returns the
   result. If a function is not provided, the argument at the same position is returned as-is.
@@ -1597,6 +1621,7 @@ defmodule OkThen.Result do
   `:none`.
   """
 
+  @doc section: :none_functions
   @doc """
   If `result` is tagged `:none`, calls `func_or_value` and returns the result. If `func_or_value`
   is not a function, then it is returned as-is.
@@ -1648,6 +1673,7 @@ defmodule OkThen.Result do
   @spec none_then(result_input(), func_or_value(out)) :: out when out: any()
   def none_then(result, func_or_value), do: tagged_then(result, :none, func_or_value)
 
+  @doc section: :generic_functions
   @doc """
   If `result` is tagged with the specified `tag` atom, passes the wrapped value into the provided
   function and returns the result. If `func_or_value` is not a function, then it is returned
@@ -1741,6 +1767,7 @@ defmodule OkThen.Result do
     end
   end
 
+  @doc section: :ok_functions
   @doc """
   Returns the wrapped value if `result` is tagged `:ok`. Otherwise, passes the tag and wrapped
   value into the provided function and returns the result. If the function has arity 1, then only
@@ -1789,6 +1816,7 @@ defmodule OkThen.Result do
   @spec unwrap_or_else(result_input(), func_or_value(any())) :: any()
   def unwrap_or_else(result, func_or_value), do: tagged_unwrap_or_else(result, :ok, func_or_value)
 
+  @doc section: :ok_functions
   @doc """
   Same as `unwrap_or_else/2`, except raises `ArgumentError` if `result` is not tagged `:ok`.
 
@@ -1815,6 +1843,7 @@ defmodule OkThen.Result do
   @spec unwrap!(result_input()) :: any()
   def unwrap!(result), do: tagged_unwrap!(result, :ok)
 
+  @doc section: :error_functions
   @doc """
   Returns the wrapped value if `result` is tagged `:error`. Otherwise, passes the tag and wrapped
   value into the provided function and returns the result. If the function has arity 1, then only
@@ -1864,6 +1893,7 @@ defmodule OkThen.Result do
   def error_unwrap_or_else(result, func_or_value),
     do: tagged_unwrap_or_else(result, :error, func_or_value)
 
+  @doc section: :error_functions
   @doc """
   Same as `error_unwrap_or_else/2`, except raises `ArgumentError` if `result` is not tagged
   `:error`.
@@ -1891,6 +1921,7 @@ defmodule OkThen.Result do
   @spec error_unwrap!(result_input()) :: any()
   def error_unwrap!(result), do: tagged_unwrap!(result, :error)
 
+  @doc section: :generic_functions
   @doc """
   Returns the wrapped value if `result` is tagged with the specified `tag` atom. Otherwise, passes
   the tag and wrapped value into the provided function and returns the result. If the function
@@ -1948,6 +1979,7 @@ defmodule OkThen.Result do
     end
   end
 
+  @doc section: :generic_functions
   @doc """
   Same as `tagged_unwrap_or_else/3`, except raises `ArgumentError` if `result` is not tagged with
   the specified `tag` atom.
