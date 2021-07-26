@@ -114,6 +114,19 @@ defmodule OkThen.Result.Enum do
       ...>   :other, _values -> []
       ...> end)
       [{:some, 2}, {:some, 3}]
+
+      iex> [:ok, "hello", {:error, "hello"}, {1, 2}]
+      ...> |> Result.Enum.map_grouped_by_tag(fn
+      ...>   tag, _values when tag in [:ok, :error] -> []
+      ...>   :untagged, values -> values
+      ...> end)
+      [{:untagged, "hello"}, {:untagged, {1, 2}}]
+
+      iex> []
+      ...> |> Result.Enum.map_grouped_by_tag(fn
+      ...>   :ok, values -> Enum.map(values, &(&1 + 1))
+      ...> end)
+      []
   """
   @spec map_grouped_by_tag([Result.tagged()], (atom(), [any()] -> [any()])) :: [Result.tagged()]
   def map_grouped_by_tag(results, filter_function)
