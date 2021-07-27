@@ -98,7 +98,7 @@ defmodule OkThen.Result.Enum do
       ...> |> Result.Enum.map_grouped_by_tag(fn
       ...>   :ok, _values -> nil
       ...> end)
-      ** (ArgumentError) Expected filter_function clause for tag :ok to return a list, but got: nil
+      ** (ArgumentError) Expected map_function clause for tag :ok to return a list, but got: nil
 
       iex> [{:ok, 1}, {:error, 1}, {:ok, 2}, {:error, 2}, :none]
       ...> |> Result.Enum.map_grouped_by_tag(fn
@@ -129,19 +129,19 @@ defmodule OkThen.Result.Enum do
       []
   """
   @spec map_grouped_by_tag([Result.tagged()], (atom(), [any()] -> [any()])) :: [Result.tagged()]
-  def map_grouped_by_tag(results, filter_function)
-      when is_list(results) and is_function(filter_function, 2) do
+  def map_grouped_by_tag(results, map_function)
+      when is_list(results) and is_function(map_function, 2) do
     results
     |> group_by_tag()
     |> Enum.flat_map(fn {tag, values} ->
-      filter_function.(tag, values)
+      map_function.(tag, values)
       |> case do
         list when is_list(list) ->
           Enum.map(list, &{tag, &1})
 
         other ->
           raise ArgumentError,
-                "Expected filter_function clause for tag #{Kernel.inspect(tag)} " <>
+                "Expected map_function clause for tag #{Kernel.inspect(tag)} " <>
                   "to return a list, but got: #{Kernel.inspect(other)}"
       end
     end)
