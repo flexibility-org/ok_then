@@ -1,6 +1,6 @@
 # Changelog
 
-### Next
+### 1.0.0
 
 * Added `Result.filter/2` and friends.
 * Added `Result.Enum.map_grouped_by_tag/2`.
