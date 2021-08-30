@@ -6,6 +6,8 @@ defmodule OkThen.ResultTest do
   alias OkThen.Result
   require Result
 
+  import ExUnit.CaptureIO
+
   doctest Result
   doctest Result.Enum
   doctest Result.Pipe, import: true

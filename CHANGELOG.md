@@ -1,5 +1,9 @@
 # Changelog
 
+### Next
+
+* Added `Result.tap/2` and friends.
+
 ### 1.0.0
 
 * Added `Result.filter/2` and friends.
