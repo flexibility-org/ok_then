@@ -4,7 +4,7 @@ defmodule OkThen.MixProject do
   def project do
     [
       app: :ok_then,
-      version: "1.0.0",
+      version: "1.1.0",
       description: description(),
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,

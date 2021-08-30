@@ -1,6 +1,6 @@
 # Changelog
 
-### Next
+### 1.1.0
 
 * Added `Result.tap/2` and friends.
 * Added `Result.default!/2` and friends, which raise if value is `nil`.
