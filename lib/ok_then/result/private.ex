@@ -1,7 +1,12 @@
 defmodule OkThen.Result.Private do
-  @moduledoc false
+  @moduledoc """
+  These functions are not part of the public API, and may change without notice.
+  """
 
   alias OkThen.Result
+
+  @type func_or_value(out) :: (any() -> out) | (() -> out) | out
+  @type func_or_value(tag, out) :: (tag, any() -> out) | func_or_value(out)
 
   defguard is_tag(value) when is_atom(value) and not is_nil(value)
 
@@ -32,10 +37,7 @@ defmodule OkThen.Result.Private do
   def normalize_value({value}), do: value
   def normalize_value(value), do: value
 
-  @spec map_normalized_result(
-          Result.tagged(),
-          (atom(), any() -> any()) | (any() -> any()) | any()
-        ) ::
+  @spec map_normalized_result(Result.tagged(), func_or_value(any(), any())) ::
           Result.result_input()
   def map_normalized_result({tag, value}, func_or_value) when is_function(func_or_value) do
     Function.info(func_or_value, :arity)
@@ -49,7 +51,7 @@ defmodule OkThen.Result.Private do
 
   def map_normalized_result(_normalized_result, func_or_value), do: func_or_value
 
-  @spec map_value(any(), (any() -> any()) | any()) :: any()
+  @spec map_value(any(), func_or_value(any())) :: any()
   def map_value(value, func_or_value) when is_function(func_or_value) do
     Function.info(func_or_value, :arity)
     |> case do

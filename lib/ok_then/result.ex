@@ -79,9 +79,6 @@ defmodule OkThen.Result do
   @type maybe_error :: maybe_is(:error)
   @type maybe_error(e) :: maybe_is(:error, e)
 
-  @typep func_or_value(out) :: (any() -> out) | out
-  @typep func_or_value(tag, out) :: (tag, any() -> out) | func_or_value(out)
-
   @doc section: :guards
   @doc """
   Returns true if `result` is a tagged tuple.
@@ -250,9 +247,9 @@ defmodule OkThen.Result do
       iex> "bare value" |> Result.consume()
       "bare value"
   """
-  @spec consume(result_input(), (any() -> any())) :: out when out: any()
-  def consume(result, func_or_value \\ & &1),
-    do: tagged_consume(result, :ok, func_or_value)
+  @spec consume(result_input(), (any() -> any())) :: result_input() | :none
+  def consume(result, function \\ & &1),
+    do: tagged_consume(result, :ok, function)
 
   @doc section: :error_functions
   @doc """
@@ -292,9 +289,9 @@ defmodule OkThen.Result do
       iex> "bare value" |> Result.error_consume()
       "bare value"
   """
-  @spec error_consume(result_input(), (any() -> any())) :: out when out: any()
-  def error_consume(result, func_or_value \\ & &1),
-    do: tagged_consume(result, :error, func_or_value)
+  @spec error_consume(result_input(), (any() -> any())) :: result_input() | :none
+  def error_consume(result, function \\ & &1),
+    do: tagged_consume(result, :error, function)
 
   @doc section: :generic_functions
   @doc """
@@ -332,7 +329,7 @@ defmodule OkThen.Result do
       iex> "bare value" |> Result.tagged_consume(:ok)
       "bare value"
   """
-  @spec tagged_consume(result_input(), atom(), (any() -> any())) :: out when out: any()
+  @spec tagged_consume(result_input(), atom(), (any() -> any())) :: result_input() | :none
   def tagged_consume(result, tag, function \\ & &1)
       when is_atom(tag) and is_function(function) do
     tagged_then(result, tag, fn value ->
@@ -783,7 +780,7 @@ defmodule OkThen.Result do
       iex> "bare value" |> Result.map("hello")
       "bare value"
   """
-  @spec map(t, func_or_value(out)) :: t | :ok | ok(out) when t: result_input(), out: any()
+  @spec map(t, Private.func_or_value(out)) :: t | :ok | ok(out) when t: result_input(), out: any()
   def map(result, func_or_value), do: tagged_map(result, :ok, func_or_value)
 
   @doc section: :error_functions
@@ -849,7 +846,7 @@ defmodule OkThen.Result do
       iex> "bare value" |> Result.error_map("hello")
       "bare value"
   """
-  @spec error_map(t, func_or_value(out)) :: t | :error | error(out)
+  @spec error_map(t, Private.func_or_value(out)) :: t | :error | error(out)
         when t: result_input(), out: any()
   def error_map(result, func_or_value), do: tagged_map(result, :error, func_or_value)
 
@@ -923,7 +920,7 @@ defmodule OkThen.Result do
       iex> "bare value" |> Result.tagged_map(:untagged, "hello")
       {:untagged, "hello"}
   """
-  @spec tagged_map(t, tag, func_or_value(out)) :: t | tag | {tag, out}
+  @spec tagged_map(t, tag, Private.func_or_value(out)) :: t | tag | {tag, out}
         when t: result_input(), tag: atom(), out: any()
   def tagged_map(result, tag, func_or_value) do
     normalized_result = Private.normalize_result_input(result)
@@ -1118,7 +1115,7 @@ defmodule OkThen.Result do
       ...> end)
       :none
   """
-  @spec or_else(result_input(), func_or_value(atom(), out)) :: out when out: any()
+  @spec or_else(result_input(), Private.func_or_value(atom(), out)) :: out when out: any()
   def or_else(result, func_or_value), do: tagged_or_else(result, :ok, func_or_value)
 
   @doc section: :error_functions
@@ -1223,7 +1220,7 @@ defmodule OkThen.Result do
       ...> end)
       :none
   """
-  @spec error_or_else(result_input(), func_or_value(atom(), out)) :: out when out: any()
+  @spec error_or_else(result_input(), Private.func_or_value(atom(), out)) :: out when out: any()
   def error_or_else(result, func_or_value), do: tagged_or_else(result, :error, func_or_value)
 
   @doc section: :generic_functions
@@ -1334,7 +1331,8 @@ defmodule OkThen.Result do
       iex> "bare value" |> Result.tagged_or_else(:untagged, fn _ -> :none end)
       "bare value"
   """
-  @spec tagged_or_else(result_input(), atom(), func_or_value(atom(), out)) :: out when out: any()
+  @spec tagged_or_else(result_input(), atom(), Private.func_or_value(atom(), out)) :: out
+        when out: any()
   def tagged_or_else(result, tag, func_or_value) do
     normalized_result = Private.normalize_result_input(result)
 
@@ -1539,7 +1537,7 @@ defmodule OkThen.Result do
       iex> "bare value" |> Result.then(fn _ -> {:ok, "hello"} end)
       "bare value"
   """
-  @spec then(result_input(), func_or_value(out)) :: out when out: any()
+  @spec then(result_input(), Private.func_or_value(out)) :: out when out: any()
   def then(result, func_or_value), do: tagged_then(result, :ok, func_or_value)
 
   @doc section: :error_functions
@@ -1607,7 +1605,7 @@ defmodule OkThen.Result do
       iex> "bare value" |> Result.error_then(fn _ -> {:ok, "hello"} end)
       "bare value"
   """
-  @spec error_then(result_input(), func_or_value(out)) :: out when out: any()
+  @spec error_then(result_input(), Private.func_or_value(out)) :: out when out: any()
   def error_then(result, func_or_value), do: tagged_then(result, :error, func_or_value)
 
   @doc_unwrapped_nils """
@@ -1670,7 +1668,7 @@ defmodule OkThen.Result do
       iex> nil |> Result.none_then(:ok)
       :ok
   """
-  @spec none_then(result_input(), func_or_value(out)) :: out when out: any()
+  @spec none_then(result_input(), Private.func_or_value(out)) :: out when out: any()
   def none_then(result, func_or_value), do: tagged_then(result, :none, func_or_value)
 
   @doc section: :generic_functions
@@ -1754,7 +1752,7 @@ defmodule OkThen.Result do
       iex> nil |> Result.tagged_then(:none, :ok)
       :ok
   """
-  @spec tagged_then(result_input(), atom(), func_or_value(out)) :: out when out: any()
+  @spec tagged_then(result_input(), atom(), Private.func_or_value(out)) :: out when out: any()
   def tagged_then(result, tag, func_or_value) do
     normalized_result = Private.normalize_result_input(result)
 
@@ -1813,7 +1811,7 @@ defmodule OkThen.Result do
       iex> "hello" |> Result.unwrap_or_else("default")
       "default"
   """
-  @spec unwrap_or_else(result_input(), func_or_value(any())) :: any()
+  @spec unwrap_or_else(result_input(), Private.func_or_value(any())) :: any()
   def unwrap_or_else(result, func_or_value), do: tagged_unwrap_or_else(result, :ok, func_or_value)
 
   @doc section: :ok_functions
@@ -1889,7 +1887,7 @@ defmodule OkThen.Result do
       iex> "hello" |> Result.error_unwrap_or_else("default")
       "default"
   """
-  @spec error_unwrap_or_else(result_input(), func_or_value(any())) :: any()
+  @spec error_unwrap_or_else(result_input(), Private.func_or_value(any())) :: any()
   def error_unwrap_or_else(result, func_or_value),
     do: tagged_unwrap_or_else(result, :error, func_or_value)
 
@@ -1968,7 +1966,7 @@ defmodule OkThen.Result do
       iex> "hello" |> Result.tagged_unwrap_or_else(:untagged, "default")
       "hello"
   """
-  @spec tagged_unwrap_or_else(result_input(), atom(), func_or_value(any())) :: any()
+  @spec tagged_unwrap_or_else(result_input(), atom(), Private.func_or_value(any())) :: any()
   def tagged_unwrap_or_else(result, tag, func_or_value) do
     normalized_result = Private.normalize_result_input(result)
 
