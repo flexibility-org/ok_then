@@ -1477,6 +1477,125 @@ defmodule OkThen.Result do
 
   @doc section: :ok_functions
   @doc """
+  If `result` is tagged with `:ok`, passes the wrapped value into the provided function and
+  returns `result` unchanged. The return value of the function is ignored.
+
+  If `result` is not tagged with `:ok`, the provided function is not called.
+
+  Equivalent to `tagged_tap(result, :ok, function)`. See `tagged_tap/3`.
+
+  ## Examples
+
+      iex> capture_io(fn ->
+      ...>  assert :ok |> Result.tap(fn -> IO.write("hello") end) == :ok
+      ...> end)
+      "hello"
+
+      iex> capture_io(fn ->
+      ...>  input = {:ok, "in"}
+      ...>  assert input |> Result.tap(fn "in" -> IO.write("hello") end) == input
+      ...> end)
+      "hello"
+
+      iex> capture_io(fn ->
+      ...>  input = {:ok, "one", "two"}
+      ...>  function = fn {"one", "two"} -> IO.write("hello") end
+      ...>  assert input |> Result.tap(function) == input
+      ...> end)
+      "hello"
+
+      iex> capture_io(fn ->
+      ...>  input = {:error, "reason"}
+      ...>  assert input |> Result.tap(fn -> IO.write("hello") end) == input
+      ...> end)
+      ""
+  """
+  @spec tap(result_input(), Private.func_or_value(any())) :: result_input()
+  def tap(result, function), do: tagged_tap(result, :ok, function)
+
+  @doc section: :error_functions
+  @doc """
+  If `result` is tagged with `:error`, passes the wrapped value into the provided function and
+  returns `result` unchanged. The return value of the function is ignored.
+
+  If `result` is not tagged with `:error`, the provided function is not called.
+
+  Equivalent to `tagged_tap(result, :error, function)`. See `tagged_tap/3`.
+
+  ## Examples
+
+      iex> capture_io(fn ->
+      ...>  assert :error |> Result.error_tap(fn -> IO.write("hello") end) == :error
+      ...> end)
+      "hello"
+
+      iex> capture_io(fn ->
+      ...>  input = {:error, "reason"}
+      ...>  assert input |> Result.error_tap(fn "reason" -> IO.write("hello") end) == input
+      ...> end)
+      "hello"
+
+      iex> capture_io(fn ->
+      ...>  input = {:error, "one", "two"}
+      ...>  function = fn {"one", "two"} -> IO.write("hello") end
+      ...>  assert input |> Result.error_tap(function) == input
+      ...> end)
+      "hello"
+
+      iex> capture_io(fn ->
+      ...>  input = {:ok, "in"}
+      ...>  assert input |> Result.error_tap(fn -> IO.write("hello") end) == input
+      ...> end)
+      ""
+  """
+  @spec error_tap(result_input(), Private.func_or_value(any())) :: result_input()
+  def error_tap(result, function), do: tagged_tap(result, :error, function)
+
+  @doc section: :generic_functions
+  @doc """
+  If `result` is tagged with the specified `tag` atom, passes the wrapped value into the provided
+  function and returns `result` unchanged. The return value of the function is ignored.
+
+  If `result` is not tagged with the specified `tag` atom, the provided function is not called.
+
+  ## Examples
+
+      iex> capture_io(fn ->
+      ...>  assert :ok |> Result.tagged_tap(:ok, fn -> IO.write("hello") end) == :ok
+      ...> end)
+      "hello"
+
+      iex> capture_io(fn ->
+      ...>  input = {:ok, "in"}
+      ...>  assert input |> Result.tagged_tap(:ok, fn "in" -> IO.write("hello") end) == input
+      ...> end)
+      "hello"
+
+      iex> capture_io(fn ->
+      ...>  input = {:ok, "one", "two"}
+      ...>  function = fn {"one", "two"} -> IO.write("hello") end
+      ...>  assert input |> Result.tagged_tap(:ok, function) == input
+      ...> end)
+      "hello"
+
+      iex> capture_io(fn ->
+      ...>  input = {:error, "reason"}
+      ...>  assert input |> Result.tagged_tap(:ok, fn -> IO.write("hello") end) == input
+      ...> end)
+      ""
+  """
+  @spec tagged_tap(result_input(), atom(), Private.func_or_value(any())) :: result_input()
+  def tagged_tap(result, tag, function)
+      when is_atom(tag) and is_function(function) do
+    tagged_then(result, tag, fn value ->
+      Private.map_value(value, function)
+    end)
+
+    result
+  end
+
+  @doc section: :ok_functions
+  @doc """
   If `result` is tagged `:ok`, passes the wrapped value into `func_or_value` and returns the
   result. If a function is not provided, the argument at the same position is returned as-is.
 
