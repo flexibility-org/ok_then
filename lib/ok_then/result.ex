@@ -499,10 +499,10 @@ defmodule OkThen.Result do
   @doc section: :ok_functions
   @doc """
   If `result` is tagged `:ok`, passes the wrapped value into the provided function. If
-  `check_function` returns a truthy value, `result` is returned unchanged. Otherwise, returns
-  `:none`.
+  `func_or_value` returns a truthy value, `result` is returned unchanged. Otherwise, returns
+  `:none`. If `func_or_value` is not a function, then it is used directly as the check value.
 
-  Equivalent to `tagged_filter(result, :ok, check_function)`. See `tagged_filter/3`.
+  Equivalent to `tagged_filter(result, :ok, func_or_value)`. See `tagged_filter/3`.
 
   ## Examples
 
@@ -510,6 +510,18 @@ defmodule OkThen.Result do
       {:ok, "hello"}
 
       iex> {:ok, "hello"} |> Result.filter(&String.length(&1) == 0)
+      :none
+
+      iex> {:ok, "hello"} |> Result.filter(fn -> true end)
+      {:ok, "hello"}
+
+      iex> {:ok, "hello"} |> Result.filter(fn -> false end)
+      :none
+
+      iex> {:ok, "hello"} |> Result.filter(true)
+      {:ok, "hello"}
+
+      iex> {:ok, "hello"} |> Result.filter(false)
       :none
 
       iex> :some |> Result.filter(&String.length(&1) == 0)
@@ -521,17 +533,17 @@ defmodule OkThen.Result do
       iex> nil |> Result.filter(&String.length(&1) == 0)
       nil
   """
-  @spec filter(result_input(), (any() -> as_boolean(any()))) :: result_input()
-  def filter(result, check_function) when is_function(check_function, 1),
-    do: tagged_filter(result, :ok, check_function)
+  @spec filter(result_input(), Private.func_or_value(as_boolean(any()))) :: result_input()
+  def filter(result, func_or_value),
+    do: tagged_filter(result, :ok, func_or_value)
 
   @doc section: :error_functions
   @doc """
   If `result` is tagged `:error`, passes the wrapped value into the provided function. If
-  `check_function` returns a truthy value, `result` is returned unchanged. Otherwise, returns
-  `:none`.
+  `func_or_value` returns a truthy value, `result` is returned unchanged. Otherwise, returns
+  `:none`. If `func_or_value` is not a function, then it is used directly as the check value.
 
-  Equivalent to `tagged_filter(result, :error, check_function)`. See `tagged_filter/3`.
+  Equivalent to `tagged_filter(result, :error, func_or_value)`. See `tagged_filter/3`.
 
   ## Examples
 
@@ -539,6 +551,18 @@ defmodule OkThen.Result do
       {:error, "hello"}
 
       iex> {:error, "hello"} |> Result.error_filter(&String.length(&1) == 0)
+      :none
+
+      iex> {:error, "hello"} |> Result.error_filter(fn -> true end)
+      {:error, "hello"}
+
+      iex> {:error, "hello"} |> Result.error_filter(fn -> false end)
+      :none
+
+      iex> {:error, "hello"} |> Result.error_filter(true)
+      {:error, "hello"}
+
+      iex> {:error, "hello"} |> Result.error_filter(false)
       :none
 
       iex> :some |> Result.error_filter(&String.length(&1) == 0)
@@ -550,15 +574,16 @@ defmodule OkThen.Result do
       iex> nil |> Result.error_filter(&String.length(&1) == 0)
       nil
   """
-  @spec error_filter(result_input(), (any() -> as_boolean(any()))) :: result_input()
-  def error_filter(result, check_function) when is_function(check_function, 1),
-    do: tagged_filter(result, :error, check_function)
+  @spec error_filter(result_input(), Private.func_or_value(as_boolean(any()))) :: result_input()
+  def error_filter(result, func_or_value),
+    do: tagged_filter(result, :error, func_or_value)
 
   @doc section: :generic_functions
   @doc """
   If `result` is tagged with the specified `tag` atom, passes the wrapped value into the provided
-  function. If `check_function` returns a truthy value, `result` is returned unchanged. Otherwise,
-  returns `:none`.
+  function. If `func_or_value` returns a truthy value, `result` is returned unchanged. Otherwise,
+  returns `:none`. If `func_or_value` is not a function, then it is used directly as the check
+  value.
 
   ## Examples
 
@@ -566,6 +591,18 @@ defmodule OkThen.Result do
       {:ok, "hello"}
 
       iex> {:ok, "hello"} |> Result.tagged_filter(:ok, &String.length(&1) == 0)
+      :none
+
+      iex> {:ok, "hello"} |> Result.tagged_filter(:ok, fn -> true end)
+      {:ok, "hello"}
+
+      iex> {:ok, "hello"} |> Result.tagged_filter(:ok, fn -> false end)
+      :none
+
+      iex> {:ok, "hello"} |> Result.tagged_filter(:ok, true)
+      {:ok, "hello"}
+
+      iex> {:ok, "hello"} |> Result.tagged_filter(:ok, false)
       :none
 
       iex> :some |> Result.tagged_filter(:ok, &String.length(&1) == 0)
@@ -577,10 +614,11 @@ defmodule OkThen.Result do
       iex> nil |> Result.tagged_filter(:ok, &String.length(&1) == 0)
       nil
   """
-  @spec tagged_filter(result_input(), atom(), (any() -> as_boolean(any()))) :: result_input()
-  def tagged_filter(result, tag, check_function) when is_function(check_function, 1) do
+  @spec tagged_filter(result_input(), atom(), Private.func_or_value(as_boolean(any()))) ::
+          result_input()
+  def tagged_filter(result, tag, func_or_value) do
     tagged_then(result, tag, fn value ->
-      if check_function.(value) do
+      if Private.map_value(value, func_or_value) do
         result
       else
         :none

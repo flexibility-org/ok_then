@@ -3,6 +3,7 @@
 ### Next
 
 * Added `Result.tap/2` and friends.
+* `Result.filter/2` and friends now accept 0-arity functions and truthy values.
 
 ### 1.0.0
 
