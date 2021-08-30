@@ -391,6 +391,26 @@ defmodule OkThen.Result do
 
   @doc section: :none_functions
   @doc """
+  Same as `default/2`, except raises `ArgumentError` if `func_or_value` returns `nil`.
+
+  ## Examples
+
+      iex> :none |> Result.default!("hello")
+      {:ok, "hello"}
+
+      iex> :none |> Result.default!({})
+      :ok
+
+      iex> :none |> Result.default!(nil)
+      ** (ArgumentError) Value is nil.
+
+      iex> :none |> Result.default!(fn -> nil end)
+      ** (ArgumentError) Value is nil.
+  """
+  def default!(result, func_or_value), do: default_as!(result, :ok, func_or_value)
+
+  @doc section: :none_functions
+  @doc """
   If `result` is tagged `:none`, returns `func_or_value` wrapped as an `:error` result. Otherwise,
   returns `result`. If `func_or_value` is a function, the returned value is used as the new value.
 
@@ -439,6 +459,26 @@ defmodule OkThen.Result do
   @spec default_error(input, (() -> out) | out) :: input | :error | error(out)
         when input: result_input(), out: any()
   def default_error(result, func_or_value), do: default_as(result, :error, func_or_value)
+
+  @doc section: :none_functions
+  @doc """
+  Same as `default_error/2`, except raises `ArgumentError` if `func_or_value` returns `nil`.
+
+  ## Examples
+
+      iex> :none |> Result.default_error!("hello")
+      {:error, "hello"}
+
+      iex> :none |> Result.default_error!({})
+      :error
+
+      iex> :none |> Result.default_error!(nil)
+      ** (ArgumentError) Value is nil.
+
+      iex> :none |> Result.default_error!(fn -> nil end)
+      ** (ArgumentError) Value is nil.
+  """
+  def default_error!(result, func_or_value), do: default_as!(result, :error, func_or_value)
 
   @doc section: :none_functions
   @doc """
@@ -493,6 +533,34 @@ defmodule OkThen.Result do
     |> none_then(fn value ->
       Private.map_value(value, func_or_value)
       |> from_as(tag)
+    end)
+  end
+
+  @doc section: :none_functions
+  @doc """
+  Same as `default_as/3`, except raises `ArgumentError` if `func_or_value` returns `nil`.
+
+  ## Examples
+
+      iex> :none |> Result.default_as!(:ok, "hello")
+      {:ok, "hello"}
+
+      iex> :none |> Result.default_as!(:ok, {})
+      :ok
+
+      iex> :none |> Result.default_as!(:ok, nil)
+      ** (ArgumentError) Value is nil.
+
+      iex> :none |> Result.default_as!(:ok, fn -> nil end)
+      ** (ArgumentError) Value is nil.
+  """
+  @spec default_as!(input, tag, (() -> out) | out) :: input | tag | {tag, out}
+        when input: result_input(), tag: atom(), out: any()
+  def default_as!(result, tag, func_or_value) when Private.is_tag(tag) do
+    result
+    |> none_then(fn value ->
+      Private.map_value(value, func_or_value)
+      |> from_as!(tag)
     end)
   end
 
