@@ -182,7 +182,7 @@ slightly contrived example:
 get_my_map()                           # nil
 |> Result.from()                       # :none
 |> Result.default(%{})                 # {:ok, %{}}
-|> Result.map(&Map.get(:my_map_key))   # :none
+|> Result.map(&Map.get(&1, :my_map_key))   # :none
 |> Result.unwrap_or_else("default")    # "default"
 ```
 
@@ -193,7 +193,7 @@ will catch _any_ result that is not `:ok`:
 ```elixir
 {:error, "Unexpected Error"}
 |> Result.default(%{})                 # {:error, "Unexpected Error"}
-|> Result.map(&Map.get(:my_map_key))   # {:error, "Unexpected Error"}
+|> Result.map(&Map.get(&1, :my_map_key))   # {:error, "Unexpected Error"}
 |> Result.unwrap_or_else("default")    # "default"
 ```
 
@@ -204,7 +204,7 @@ value just like before:
 {:error, "Unexpected Error"}
 |> Result.error_consume(&Logger.error/1) # :none ("Unexpected Error" is logged)
 |> Result.default(%{})                   # {:ok, %{}}
-|> Result.map(&Map.get(:my_map_key))     # :none
+|> Result.map(&Map.get(&1, :my_map_key))     # :none
 |> Result.unwrap!()                      # "default"
 ```
 
