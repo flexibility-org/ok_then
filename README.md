@@ -58,7 +58,8 @@ def to_nil(_value), do: nil
 def error(value), do: {:error, value}
 
 def unwrap_result(result) do
-  Result.default("default")
+  result
+  |> Result.default("default")
   |> Result.unwrap_or_else("failsafe")
 end
 
